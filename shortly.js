@@ -2,6 +2,8 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 
 
 var db = require('./app/config');
@@ -18,30 +20,46 @@ app.set('view engine', 'ejs');
 app.use(partials());
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
+app.use(cookieParser('shh'));
+app.use(session({
+  genid: function(req) {
+    console.log("Hello______________________________________________");
+    return 'hello';
+  },
+  resave: true,
+  saveUninitialized: true,
+  secret: 'shhhhhhh'
+}));
+
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
+
+app.get('/',
 function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/create',
 function(req, res) {
+  console.log(req.url);
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links',
 function(req, res) {
+  console.log(req.url);
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', 
+app.post('/links',
 function(req, res) {
+  console.log(req.url);
+  console.log(req.body.url);
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -78,7 +96,31 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+app.get('/login',
+function(req, res) {
+  console.log('in login GET');
+  res.render('login');
+});
 
+app.post('/login',
+function(req, res) {
+  console.log('in login POST');
+  res.redirect('login');
+  // res.send(302);
+});
+
+app.post('/signup',
+function(req, res) {
+  console.log('in signup POST');
+  res.redirect('signup');
+  // res.send(302);
+});
+
+app.get('/signup',
+function(req, res) {
+  console.log('in signup GET');
+  res.render('signup');
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
@@ -108,5 +150,5 @@ app.get('/*', function(req, res) {
   });
 });
 
-console.log('Shortly is listening on 4568');
-app.listen(4568);
+console.log('Shortly is listening on 3000');
+app.listen(3000);

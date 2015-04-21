@@ -20,3 +20,18 @@ Shortly.LinksView = Backbone.View.extend({
     this.$el.append(view.render().el);
   }
 });
+
+// Shortly.SignupView = Backbone.View.extend({
+//   className: 'signup',
+
+//   initialize: function(){
+
+//     this.collection.on('sync', this.render(), this);
+//     //this.collection.fetch();
+//   },
+
+//   render: function() {
+//     this.$el.empty();
+//     return this;
+//   }
+// });
