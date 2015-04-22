@@ -23,7 +23,6 @@ app.use(bodyParser.json());
 app.use(cookieParser('shh'));
 app.use(session({
   genid: function(req) {
-    console.log("Hello______________________________________________");
     return 'hello';
   },
   resave: true,
@@ -39,32 +38,59 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/',
 function(req, res) {
-  res.render('index');
+  sess = req.session;
+
+    if(!sess.username){
+      res.redirect('login');
+    } else {
+      res.render('index');
+    }
+
 });
 
 app.get('/create',
+function(req, res, next) {
+  sess = req.session;
+
+    if(!sess.username){
+      res.redirect('login');
+    } else {
+      next();
+    }
+
+},
 function(req, res) {
-  console.log(req.url);
   res.render('index');
-});
+}
+);
 
 app.get('/links',
 function(req, res) {
-  console.log(req.url);
-  Links.reset().fetch().then(function(links) {
-    res.send(200, links.models);
-  });
+  sess = req.session;
+  if(!sess.username){
+    res.redirect('login');
+  } else {
+    console.log(req.url);
+    Links.reset().fetch().then(function(links) {
+      res.send(200, links.models);
+    });
+  }
 });
 
 app.post('/links',
 function(req, res) {
-  console.log(req.url);
-  console.log(req.body.url);
+  //console.log('app.post /links',req.body.url);
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
     console.log('Not a valid url: ', uri);
     return res.send(404);
+  }
+  sess = req.session;
+  //console.log("this should be the seession : ", sess);
+  if(!sess){
+    res.redirect('login');
+    return;
   }
 
   new Link({ url: uri }).fetch().then(function(found) {
@@ -98,27 +124,31 @@ function(req, res) {
 
 app.get('/login',
 function(req, res) {
-  console.log('in login GET');
+  //console.log('in login GET');
   res.render('login');
 });
 
 app.post('/login',
 function(req, res) {
-  console.log('in login POST');
-  res.redirect('login');
+  //console.log('in login POST');
+  sess = req.session;
+  sess.username = req.body.username;
+  sess.password = req.body.password;
+
+  res.redirect('/create');
   // res.send(302);
 });
 
 app.post('/signup',
 function(req, res) {
-  console.log('in signup POST');
+  //console.log('in signup POST');
   res.redirect('signup');
   // res.send(302);
 });
 
 app.get('/signup',
 function(req, res) {
-  console.log('in signup GET');
+  //console.log('in signup GET');
   res.render('signup');
 });
 
