@@ -141,9 +141,27 @@ function(req, res) {
 
 app.post('/signup',
 function(req, res) {
-  //console.log('in signup POST');
-  res.redirect('signup');
-  // res.send(302);
+
+  sess = req.session;
+  var username = req.body.username;
+  var password = req.body.password;
+  Users.query(function(data){
+    data.where('username', '=', username )
+  }).fetch().then(function(data){
+    if(data.length > 0){
+      res.redirect('signup');
+    } else {
+      var newUser = new User({
+        'username': username,
+        'password': password
+      }).save().then(function(params){
+        sess.username = username;
+        console.log(params);
+        res.redirect('index');
+      });
+    }
+  })
+  // res.redirect('index');
 });
 
 app.get('/signup',
